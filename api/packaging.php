@@ -38,9 +38,9 @@ if ($method === 'POST') {
     if (empty($nama))       respond(['error' => 'Nama packaging wajib diisi.'], 422);
     if ($hargaPerUnit <= 0) respond(['error' => 'Harga harus lebih dari 0.'], 422);
 
-    $stmt = $db->prepare('INSERT INTO packaging (pengguna_id, nama, harga_per_unit) VALUES (?, ?, ?)');
+    $stmt = $db->prepare('INSERT INTO packaging (pengguna_id, nama, harga_per_unit) VALUES (?, ?, ?) RETURNING id');
     $stmt->execute([$userId, $nama, $hargaPerUnit]);
-    respond(['message' => 'Packaging ditambahkan.', 'id' => (int) $db->lastInsertId()], 201);
+    respond(['message' => 'Packaging ditambahkan.', 'id' => (int) $stmt->fetchColumn()], 201);
 }
 
 if ($method === 'PUT') {

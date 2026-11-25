@@ -67,7 +67,7 @@ if ($method === 'GET') {
         $params[] = $_GET['kategori'];
     }
     if (!empty($_GET['q'])) {
-        $where   .= ' AND nama LIKE ?';
+        $where   .= ' AND nama ILIKE ?';
         $params[] = '%' . $_GET['q'] . '%';
     }
 
@@ -97,10 +97,10 @@ if ($method === 'POST') {
     if (!in_array($satuan, $satuanValid, true)) respond(['error' => 'Satuan tidak valid.'], 422);
 
     try {
-        $stmt = $db->prepare('INSERT INTO bahan_baku (pengguna_id, nama, kategori, satuan, jumlah_beli, harga_beli) VALUES (?, ?, ?, ?, ?, ?)');
+        $stmt = $db->prepare('INSERT INTO bahan_baku (pengguna_id, nama, kategori, satuan, jumlah_beli, harga_beli) VALUES (?, ?, ?, ?, ?, ?) RETURNING id');
         $stmt->execute([$userId, $nama, $kategori ?: null, $satuan, $jumlahBeli, $hargaBeli]);
 
-        $newId = (int) $db->lastInsertId();
+        $newId = (int) $stmt->fetchColumn();
 
         // Ambil data yang baru masuk termasuk harga_per_satuan (kolom generated)
         $get = $db->prepare('SELECT id, nama, kategori, satuan, jumlah_beli, harga_beli, harga_per_satuan FROM bahan_baku WHERE id = ?');
@@ -108,8 +108,8 @@ if ($method === 'POST') {
 
         respond(['message' => 'Bahan baku berhasil ditambahkan.', 'data' => $get->fetch()], 201);
     } catch (PDOException $e) {
-        // Unique constraint: nama sudah ada
-        if ($e->getCode() === '23000') {
+        // Unique constraint violation di PostgreSQL: SQLSTATE 23505
+        if ($e->getCode() === '23505') {
             respond(['error' => "Bahan baku dengan nama '$nama' sudah ada."], 409);
         }
         respond(['error' => 'Gagal menyimpan data.'], 500);
@@ -144,7 +144,7 @@ if ($method === 'PUT') {
 
         respond(['message' => 'Bahan baku berhasil diperbarui.', 'data' => $get->fetch()]);
     } catch (PDOException $e) {
-        if ($e->getCode() === '23000') {
+        if ($e->getCode() === '23505') {
             respond(['error' => "Nama '$nama' sudah digunakan."], 409);
         }
         respond(['error' => 'Gagal memperbarui data.'], 500);

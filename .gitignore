@@ -1,0 +1,5 @@
+# Kredensial lokal — jangan pernah di-push
+.env
+
+# Script migrasi sementara
+migrate_to_neon.php

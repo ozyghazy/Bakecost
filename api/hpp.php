@@ -150,7 +150,8 @@ if ($method === 'POST') {
             'INSERT INTO produksi (resep_id, jumlah_produksi, faktor_konversi,
              biaya_bahan, biaya_packaging, biaya_tenaga_kerja, biaya_overhead,
              hpp_total, hpp_per_unit, margin_persen, harga_jual, tipe)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             RETURNING id'
         );
         $ins->execute([
             $resepId, $jumlahProd, $faktor,
@@ -160,7 +161,7 @@ if ($method === 'POST') {
             $marginPersen, $hargaJual ? round($hargaJual, 2) : null,
             $tipe,
         ]);
-        $produksiId = (int) $db->lastInsertId();
+        $produksiId = (int) $ins->fetchColumn();
 
         // Simpan packaging yang dipakai
         if (!empty($validPackaging)) {
@@ -188,7 +189,7 @@ if ($method === 'POST') {
 if ($method === 'DELETE') {
     if (!$id) respond(['error' => 'ID diperlukan.'], 400);
     $stmt = $db->prepare(
-        'DELETE p FROM produksi p JOIN resep r ON r.id = p.resep_id WHERE p.id = ? AND r.pengguna_id = ?'
+        'DELETE FROM produksi p USING resep r WHERE p.resep_id = r.id AND p.id = ? AND r.pengguna_id = ?'
     );
     $stmt->execute([$id, $userId]);
     respond(['message' => 'Data dihapus.']);

@@ -1,7 +1,7 @@
 <?php
 /**
  * pages/bake_loss.php
- * Halaman kalkulator & catatan Bake Loss (penyusutan adonan saat dipanggang).
+ * Kalkulator & riwayat catatan Bake Loss (penyusutan berat pasca panggang).
  */
 
 require_once __DIR__ . '/../components/auth_guard.php';
@@ -20,85 +20,86 @@ $showBack  = true;
 $pageTitle = 'Kalkulator Bake Loss';
 $backUrl   = '/bakecost/pages/beranda.php';
 $activeNav = 'beranda';
+$htmlTitle = 'Bake Loss — BakeCost';
+require __DIR__ . '/../components/head.php';
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bake Loss — BAKECOST</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/bakecost/assets/css/style.css">
-</head>
 <body>
 <div class="app-container">
+
     <?php require __DIR__ . '/../components/header.php'; ?>
 
-    <main class="page-content">
-        <!-- Card Penjelasan -->
-        <div class="card bg-[#FDE8D5] mb-4">
-            <h2 class="text-sm font-bold text-[#5A2D0C]">Apa itu Bake Loss?</h2>
-            <p class="text-xs text-[#7C4A2D] mt-1 leading-relaxed">
-                Penyusutan kadar air saat pemanggangan. Formula: <br>
-                <code>((Berat Sebelum - Berat Sesudah) / Berat Sebelum) × 100%</code>.
+    <main class="page-content space-y-5">
+
+        <section class="editorial-hero space-y-1.5">
+            <p class="eyebrow">Penyusutan Oven</p>
+            <h2 class="font-editorial text-2xl sm:text-3xl font-semibold text-ink">Bake Loss Calculator</h2>
+            <p class="text-xs text-secondary leading-relaxed">
+                Hitung persentase penyusutan kadar air saat pemanggangan dengan formula
+                <code class="font-mono text-ink">((Berat Sebelum − Berat Sesudah) / Berat Sebelum) × 100%</code>.
             </p>
+        </section>
+
+        <div class="editorial-split">
+            <section class="list-card">
+                <div class="list-card__header">
+                    <span>Riwayat Uji Bake Loss</span>
+                    <span>Penyusutan</span>
+                </div>
+                <div id="lossList">
+                    <div class="list-row"><div class="skeleton h-5 w-1/2"></div><div class="skeleton h-5 w-20"></div></div>
+                </div>
+                <div id="emptyLoss" class="hidden text-center py-10 px-4 text-xs text-muted">
+                    Belum ada data riwayat bake loss.
+                </div>
+            </section>
+
+            <aside class="editorial-split__sticky">
+                <section class="card space-y-4">
+                    <p class="eyebrow">Catat Uji Panggang</p>
+
+                    <form id="lossForm" onsubmit="saveLoss(event)" class="space-y-4">
+                        <div>
+                            <label class="form-label" for="resepId">Pilih Resep <span class="text-red-500">*</span></label>
+                            <select id="resepId" class="input-field" required>
+                                <option value="">— Pilih Resep —</option>
+                                <?php foreach ($resepList as $r): ?>
+                                    <option value="<?= $r['id'] ?>" <?= $r['id'] === $preResepId ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($r['nama']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label" for="beratSebelum">Sebelum (g) <span class="text-red-500">*</span></label>
+                                <input type="number" id="beratSebelum" class="input-field tabular-nums" placeholder="cth: 550" min="0.1" step="any" required oninput="calcLoss()">
+                            </div>
+                            <div>
+                                <label class="form-label" for="beratSesudah">Sesudah (g) <span class="text-red-500">*</span></label>
+                                <input type="number" id="beratSesudah" class="input-field tabular-nums" placeholder="cth: 480" min="0.1" step="any" required oninput="calcLoss()">
+                            </div>
+                        </div>
+
+                        <div id="lossPreviewBox" class="card-accent text-center hidden space-y-0.5">
+                            <span class="eyebrow block">Persentase Penyusutan</span>
+                            <span id="lossPersenText" class="font-editorial text-3xl font-semibold text-accent tabular-nums block">0%</span>
+                            <span id="lossGramText" class="text-xs text-muted tabular-nums block">Berkurang 0 g</span>
+                        </div>
+
+                        <div>
+                            <label class="form-label" for="catatan">Catatan / Suhu Oven (opsional)</label>
+                            <input type="text" id="catatan" class="input-field" placeholder="cth: 175°C selama 35 menit">
+                        </div>
+
+                        <button type="submit" id="btnSubmitLoss" class="btn-primary">
+                            Simpan Catatan Bake Loss
+                        </button>
+                    </form>
+                </section>
+            </aside>
         </div>
 
-        <!-- Form Hitung & Simpan -->
-        <div class="card mb-5">
-            <h3 class="text-sm font-bold text-[#7C4A2D] uppercase tracking-wide mb-3">Hitung Penyusutan</h3>
-            <form id="lossForm" onsubmit="saveLoss(event)" class="space-y-3">
-                <div>
-                    <label class="form-label" for="resepId">Pilih Resep <span class="text-red-400">*</span></label>
-                    <select id="resepId" class="input-field text-sm" required>
-                        <option value="">— Pilih Resep —</option>
-                        <?php foreach ($resepList as $r): ?>
-                        <option value="<?= $r['id'] ?>" <?= $r['id'] === $preResepId ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($r['nama']) ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="form-label" for="beratSebelum">Sebelum Panggang (g) <span class="text-red-400">*</span></label>
-                        <input type="number" id="beratSebelum" class="input-field text-sm" placeholder="cth: 550" min="0.1" step="any" required oninput="calcLoss()">
-                    </div>
-                    <div>
-                        <label class="form-label" for="beratSesudah">Sesudah Panggang (g) <span class="text-red-400">*</span></label>
-                        <input type="number" id="beratSesudah" class="input-field text-sm" placeholder="cth: 480" min="0.1" step="any" required oninput="calcLoss()">
-                    </div>
-                </div>
-
-                <!-- Preview Real-time -->
-                <div id="lossPreviewBox" class="p-3 rounded-xl bg-[#F5E0CE] text-[#3D1F0D] hidden text-center">
-                    <span class="text-xs text-[#9E7A5A] block">Persentase Penyusutan</span>
-                    <span id="lossPersenText" class="text-xl font-bold text-[#7C4A2D]">0%</span>
-                    <span id="lossGramText" class="text-xs block text-[#9E7A5A] mt-0.5">Berkurang 0 g</span>
-                </div>
-
-                <div>
-                    <label class="form-label" for="catatan">Catatan / Suhu Oven (opsional)</label>
-                    <input type="text" id="catatan" class="input-field text-sm" placeholder="cth: 175°C selama 35 menit">
-                </div>
-
-                <button type="submit" id="btnSubmitLoss" class="btn-primary py-2.5 text-sm mt-1">
-                    Simpan Catatan Bake Loss
-                </button>
-            </form>
-        </div>
-
-        <!-- Riwayat Bake Loss -->
-        <div class="mb-4">
-            <h3 class="text-sm font-bold text-[#3D1F0D] mb-2">Riwayat Uji Coba Bake Loss</h3>
-            <div id="lossList" class="space-y-2">
-                <div class="skeleton h-14 w-full"></div>
-            </div>
-            <div id="emptyLoss" class="hidden text-center py-6 card text-xs text-[#9E7A5A]">
-                Belum ada data riwayat bake loss.
-            </div>
-        </div>
     </main>
 
     <?php require __DIR__ . '/../components/bottom_nav.php'; ?>
@@ -114,13 +115,13 @@ document.addEventListener('DOMContentLoaded', loadBakeLoss);
 function calcLoss() {
     const sblm = parseFloat(document.getElementById('beratSebelum').value) || 0;
     const ssdh = parseFloat(document.getElementById('beratSesudah').value) || 0;
-    const box = document.getElementById('lossPreviewBox');
+    const box  = document.getElementById('lossPreviewBox');
 
     if (sblm > 0 && ssdh > 0 && sblm >= ssdh) {
         const lossGram = sblm - ssdh;
-        const lossPct = (lossGram / sblm) * 100;
+        const lossPct  = (lossGram / sblm) * 100;
         document.getElementById('lossPersenText').textContent = lossPct.toFixed(2) + '%';
-        document.getElementById('lossGramText').textContent = `Berkurang ${lossGram.toFixed(1)} g dari berat awal`;
+        document.getElementById('lossGramText').textContent   = `Berkurang ${lossGram.toFixed(1)} g dari berat awal`;
         box.classList.remove('hidden');
     } else {
         box.classList.add('hidden');
@@ -137,7 +138,7 @@ async function loadBakeLoss() {
 }
 
 function renderBakeLoss() {
-    const listEl = document.getElementById('lossList');
+    const listEl  = document.getElementById('lossList');
     const emptyEl = document.getElementById('emptyLoss');
 
     if (!bakeLossData.length) {
@@ -148,34 +149,31 @@ function renderBakeLoss() {
 
     emptyEl.classList.add('hidden');
     listEl.innerHTML = bakeLossData.map(item => `
-        <div class="card p-3 flex items-center justify-between">
-            <div>
-                <p class="font-semibold text-xs text-[#3D1F0D]">${escHtml(item.resep_nama)}</p>
-                <p class="text-[11px] text-[#9E7A5A] mt-0.5">
-                    ${item.berat_sebelum}g ➔ ${item.berat_sesudah}g
+        <article class="list-row">
+            <div class="list-row__main">
+                <p class="list-row__title truncate">${escHtml(item.resep_nama)}</p>
+                <p class="list-row__meta">
+                    ${item.berat_sebelum} g → ${item.berat_sesudah} g · ${escHtml(item.tanggal)}
                     ${item.catatan ? `· <span class="italic">${escHtml(item.catatan)}</span>` : ''}
                 </p>
-                <p class="text-[10px] text-[#B09080] mt-0.5">${item.tanggal}</p>
             </div>
-            <div class="text-right">
-                <span class="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-[#FDE8D5] text-[#7C4A2D]">
-                    -${item.persen_loss}%
-                </span>
-                <button onclick="deleteLoss(${item.id})" class="block mt-1 text-[10px] text-red-400 hover:text-red-600">Hapus</button>
+            <div class="list-row__stack">
+                <span class="badge-biaya tabular-nums">−${item.persen_loss}%</span>
+                <button type="button" onclick="deleteLoss(${item.id})" class="btn-action btn-action--danger">Hapus</button>
             </div>
-        </div>
+        </article>
     `).join('');
 }
 
 async function saveLoss(e) {
     e.preventDefault();
     const resepId = parseInt(document.getElementById('resepId').value);
-    const sblm = parseFloat(document.getElementById('beratSebelum').value);
-    const ssdh = parseFloat(document.getElementById('beratSesudah').value);
+    const sblm    = parseFloat(document.getElementById('beratSebelum').value);
+    const ssdh    = parseFloat(document.getElementById('beratSesudah').value);
     const catatan = document.getElementById('catatan').value.trim();
 
     if (ssdh > sblm) {
-        showToast('⚠ Berat sesudah tidak boleh lebih besar dari berat sebelum!');
+        showToast('Berat sesudah tidak boleh lebih besar dari berat sebelum.');
         return;
     }
 
@@ -186,14 +184,14 @@ async function saveLoss(e) {
     try {
         await apiFetch('/bakecost/api/bake_loss.php', {
             method: 'POST',
-            body: { resep_id: resepId, berat_sebelum: sblm, berat_sesudah: ssdh, catatan: catatan }
+            body: { resep_id: resepId, berat_sebelum: sblm, berat_sesudah: ssdh, catatan },
         });
-        showToast('Catatan bake loss berhasil disimpan ✓');
+        showToast('Catatan bake loss disimpan');
         document.getElementById('lossForm').reset();
         document.getElementById('lossPreviewBox').classList.add('hidden');
         await loadBakeLoss();
     } catch (err) {
-        showToast('⚠ ' + err.message);
+        showToast(err.message);
     } finally {
         btn.disabled = false;
         btn.textContent = 'Simpan Catatan Bake Loss';
@@ -204,17 +202,12 @@ async function deleteLoss(id) {
     if (!confirmDelete('Hapus catatan bake loss ini?')) return;
     try {
         await apiFetch(`/bakecost/api/bake_loss.php?id=${id}`, { method: 'DELETE' });
-        showToast('Catatan dihapus ✓');
+        showToast('Catatan dihapus');
         await loadBakeLoss();
     } catch (err) {
-        showToast('⚠ ' + err.message);
+        showToast(err.message);
     }
-}
-
-function escHtml(str) {
-    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 </script>
 </body>
 </html>
-

@@ -70,11 +70,11 @@ if ($method === 'GET') {
     }
 
     // List semua resep
-    $where  = 'WHERE pengguna_id = ?';
+    $where  = 'WHERE r.pengguna_id = ?';
     $params = [$userId];
 
     if (!empty($_GET['q'])) {
-        $where   .= ' AND nama LIKE ?';
+        $where   .= ' AND r.nama ILIKE ?';
         $params[] = '%' . $_GET['q'] . '%';
     }
 
@@ -110,10 +110,10 @@ if ($method === 'POST') {
 
     $db->beginTransaction();
     try {
-        // Insert resep
-        $ins = $db->prepare('INSERT INTO resep (pengguna_id, nama, jumlah_hasil, satuan_hasil, deskripsi, dibuat_via_ai) VALUES (?, ?, ?, ?, ?, ?)');
-        $ins->execute([$userId, $nama, $jumlahHasil, $satuanHasil, $deskripsi ?: null, $viaiAI ? 1 : 0]);
-        $resepId = (int) $db->lastInsertId();
+        // Insert resep (RETURNING id untuk PostgreSQL + boolean 'true'/'false')
+        $ins = $db->prepare('INSERT INTO resep (pengguna_id, nama, jumlah_hasil, satuan_hasil, deskripsi, dibuat_via_ai) VALUES (?, ?, ?, ?, ?, ?) RETURNING id');
+        $ins->execute([$userId, $nama, $jumlahHasil, $satuanHasil, $deskripsi ?: null, $viaiAI ? 'true' : 'false']);
+        $resepId = (int) $ins->fetchColumn();
 
         // Insert bahan resep
         $insBahan = $db->prepare('INSERT INTO resep_bahan (resep_id, bahan_id, jumlah, catatan) VALUES (?, ?, ?, ?)');

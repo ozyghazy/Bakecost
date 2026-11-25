@@ -1,7 +1,7 @@
 <?php
 /**
- * index.php — Welcome / Splash screen
- * Jika sudah login, langsung ke beranda.
+ * index.php — Halaman Welcome bergaya Warm Minimalist Editorial Bakery.
+ * Jika pengguna sudah login, langsung diarahkan ke beranda.
  */
 
 session_start();
@@ -9,75 +9,116 @@ if (!empty($_SESSION['user_id'])) {
     header('Location: /bakecost/pages/beranda.php');
     exit;
 }
+
+$htmlTitle = 'BakeCost — Baking Converter & Cost Calculator';
+require __DIR__ . '/components/head.php';
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BAKECOST — Baking Converter & Cost Calculator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/bakecost/assets/css/style.css">
-</head>
 <body>
-<div class="app-container flex flex-col min-h-[100dvh] relative overflow-hidden">
+<div class="app-container flex flex-col">
 
-    <!-- Dekorasi lingkaran pojok (sesuai desain) -->
-    <div class="absolute top-0 right-0 w-28 h-28 rounded-bl-full bg-[#EAD9C8] opacity-60"></div>
-    <div class="absolute top-16 left-0 w-20 h-20 rounded-br-full bg-[#EAD9C8] opacity-40"></div>
-    <div class="absolute bottom-32 right-0 w-24 h-24 rounded-bl-full bg-[#EAD9C8] opacity-40"></div>
-
-    <!-- Konten tengah -->
-    <div class="flex-1 flex flex-col items-center px-8 pt-14">
-
-        <!-- Logo & judul -->
-        <div class="text-center mb-6">
-            <!-- Ikon chef hat -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 mx-auto mb-3 text-[#3D1F0D]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.5A3.5 3.5 0 018.5 3 3.5 3.5 0 005 6.5c0 1.2.61 2.27 1.54 2.9L6 18h12l-.54-8.6A3.5 3.5 0 0019 6.5 3.5 3.5 0 0015.5 3 3.5 3.5 0 0012 6.5z"/>
-            </svg>
-            <h1 class="text-3xl font-bold text-[#3D1F0D] tracking-wide">BAKECOST</h1>
-            <p class="text-sm text-[#9E7A5A] mt-1">Baking Converter &amp; Cost Calculator</p>
-        </div>
-
-        <!-- Deskripsi -->
-        <p class="text-center text-[#5A2D0C] text-sm leading-relaxed max-w-xs">
-            Konversi kebutuhan bahan berdasarkan jumlah produksi dan hitung estimasi biaya bahan baku dengan mudah.
-        </p>
-
-        <!-- Ilustrasi mangkuk (emoji sebagai placeholder, bisa diganti SVG/gambar) -->
-        <div class="flex-1 flex items-center justify-center">
-            <div class="text-center">
-                <!-- Ilustrasi mangkuk adonan -->
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" class="w-64 h-auto mx-auto" fill="none">
-                    <!-- Mangkuk -->
-                    <ellipse cx="100" cy="115" rx="72" ry="14" fill="#C17A3E" opacity="0.2"/>
-                    <path d="M38 80 Q38 130 100 130 Q162 130 162 80 Z" fill="#7C4A2D"/>
-                    <ellipse cx="100" cy="80" rx="62" ry="16" fill="#A0633A"/>
-                    <!-- Adonan dalam mangkuk -->
-                    <ellipse cx="100" cy="80" rx="58" ry="12" fill="#FDE8D5"/>
-                    <!-- Spatula -->
-                    <rect x="120" y="30" width="6" height="60" rx="3" fill="#3D1F0D" transform="rotate(20,123,60)"/>
-                    <rect x="118" y="28" width="10" height="18" rx="3" fill="#9E7A5A" transform="rotate(20,123,37)"/>
-                    <!-- Telur -->
-                    <ellipse cx="55" cy="120" rx="12" ry="10" fill="#F5E0CE"/>
-                    <ellipse cx="55" cy="120" rx="7" ry="6" fill="#FDE8D5"/>
-                    <!-- Rolling pin -->
-                    <rect x="70" y="128" width="60" height="10" rx="5" fill="#C17A3E"/>
-                    <rect x="68" y="127" width="8" height="12" rx="3" fill="#A0633A"/>
-                    <rect x="124" y="127" width="8" height="12" rx="3" fill="#A0633A"/>
-                </svg>
+    <header class="site-header">
+        <div class="site-header__inner">
+            <a href="/bakecost/index.php" class="brand-wordmark">BakeCost</a>
+            <div class="flex items-center gap-2">
+                <a href="/bakecost/login.php" class="btn-secondary btn-sm">Masuk</a>
+                <a href="/bakecost/register.php" class="btn-primary btn-sm">Mulai</a>
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- Tombol fixed bawah -->
-    <div class="p-4 pb-8">
-        <a href="/bakecost/login.php" class="btn-primary">Mulai</a>
-        <p class="text-center text-[#9E7A5A] text-xs mt-3">Siap membuat kue hari ini?</p>
-    </div>
+    <main class="page-content flex-1 flex flex-col gap-7">
+
+        <!-- Editorial Hero -->
+        <section class="editorial-hero">
+            <div class="grid md:grid-cols-12 gap-6 items-center">
+                <div class="md:col-span-7 space-y-4">
+                    <p class="eyebrow">Baking Converter &amp; Cost Calculator</p>
+                    <h1 class="editorial-title text-3xl md:text-5xl font-semibold text-ink leading-[1.15]">
+                        Takaran presisi.<br>
+                        <span class="italic font-medium text-accent">Biaya terkendali.</span>
+                    </h1>
+                    <p class="text-sm md:text-base text-secondary max-w-md leading-relaxed">
+                        Konversi kebutuhan bahan berdasarkan target produksi dan hitung estimasi HPP usaha baking kamu dalam satu ruang kerja yang rapi.
+                    </p>
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <a href="/bakecost/login.php" class="btn-primary btn-sm px-7 py-3">Mulai Sekarang</a>
+                        <a href="/bakecost/register.php" class="btn-secondary btn-sm px-6 py-3">Buat Akun Baru</a>
+                    </div>
+                </div>
+
+                <!-- Visual editorial + Frosted Glass Badge -->
+                <div class="md:col-span-5 flex flex-col items-center justify-center relative">
+                    <div class="glass-panel p-5 w-full max-w-xs space-y-4">
+                        <div class="flex items-center justify-between border-b border-[var(--border-hairline)] pb-3">
+                            <div>
+                                <p class="eyebrow">Contoh Batch</p>
+                                <p class="font-editorial text-lg font-semibold text-ink">Fudgy Brownies</p>
+                            </div>
+                            <span class="badge-biaya">20 porsi</span>
+                        </div>
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between">
+                                <span class="text-muted">Pengali resep</span>
+                                <span class="font-semibold text-ink tabular-nums">2× resep asli</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-muted">Biaya bahan baku</span>
+                                <span class="font-semibold text-ink tabular-nums">Rp 51.600</span>
+                            </div>
+                            <div class="flex justify-between pt-2 border-t border-[var(--border-hairline)]">
+                                <span class="font-semibold text-secondary">Estimasi HPP / porsi</span>
+                                <span class="font-bold text-accent tabular-nums">Rp 2.580</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3 Bento Feature Cards bernomor (01)-(03) -->
+        <section>
+            <p class="eyebrow mb-3">Fitur Utama</p>
+            <div class="grid sm:grid-cols-3 gap-4">
+                <a href="/bakecost/login.php" class="bento-card">
+                    <div class="bento-card__top">
+                        <span class="bento-card__num">(01)</span>
+                        <span class="bento-card__arrow" aria-hidden="true">→</span>
+                    </div>
+                    <div>
+                        <h2 class="bento-card__title">Recipe Converter</h2>
+                        <p class="bento-card__desc">Skala ulang takaran gram, ml, dan butir otomatis sesuai target batch produksi.</p>
+                    </div>
+                </a>
+
+                <a href="/bakecost/login.php" class="bento-card">
+                    <div class="bento-card__top">
+                        <span class="bento-card__num">(02)</span>
+                        <span class="bento-card__arrow" aria-hidden="true">→</span>
+                    </div>
+                    <div>
+                        <h2 class="bento-card__title">Kalkulator HPP</h2>
+                        <p class="bento-card__desc">Hitung biaya bahan, packaging, tenaga kerja, overhead, dan rekomendasi harga jual.</p>
+                    </div>
+                </a>
+
+                <a href="/bakecost/login.php" class="bento-card">
+                    <div class="bento-card__top">
+                        <span class="bento-card__num">(03)</span>
+                        <span class="bento-card__arrow" aria-hidden="true">→</span>
+                    </div>
+                    <div>
+                        <h2 class="bento-card__title">Bake Loss &amp; AI</h2>
+                        <p class="bento-card__desc">Catat persentase penyusutan oven dan racik ide resep baru lewat asisten AI.</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <footer class="text-center pt-4 pb-2">
+            <p class="text-xs text-muted">Siap membuat kue hari ini? — BakeCost</p>
+        </footer>
+    </main>
 
 </div>
 </body>
 </html>
-

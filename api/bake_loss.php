@@ -75,10 +75,11 @@ if ($method === 'POST') {
     $stmt = $db->prepare('
         INSERT INTO bake_loss (resep_id, berat_sebelum, berat_sesudah, catatan, tanggal)
         VALUES (?, ?, ?, ?, ?)
+        RETURNING id
     ');
     $stmt->execute([$resepId, $beratSebelum, $beratSesudah, $catatan ?: null, $tanggal]);
 
-    $newId = (int) $db->lastInsertId();
+    $newId = (int) $stmt->fetchColumn();
     $get = $db->prepare('SELECT * FROM bake_loss WHERE id = ?');
     $get->execute([$newId]);
     respond(['message' => 'Data bake loss berhasil disimpan.', 'data' => $get->fetch()], 201);
@@ -88,9 +89,9 @@ if ($method === 'POST') {
 if ($method === 'DELETE') {
     if (!$id) respond(['error' => 'ID diperlukan.'], 400);
     $stmt = $db->prepare('
-        DELETE bl FROM bake_loss bl
-        JOIN resep r ON r.id = bl.resep_id
-        WHERE bl.id = ? AND r.pengguna_id = ?
+        DELETE FROM bake_loss bl
+        USING resep r
+        WHERE bl.resep_id = r.id AND bl.id = ? AND r.pengguna_id = ?
     ');
     $stmt->execute([$id, $userId]);
     respond(['message' => 'Data berhasil dihapus.']);

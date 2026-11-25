@@ -1,7 +1,6 @@
 <?php
 /**
- * pages/resep_ai.php
- * Halaman Generate Resep otomatis via AI.
+ * pages/resep_ai.php — Halaman Generate Resep otomatis via AI.
  */
 
 require_once __DIR__ . '/../components/auth_guard.php';
@@ -10,75 +9,68 @@ require_once __DIR__ . '/../config/database.php';
 $showBack  = true;
 $pageTitle = 'Generate Resep AI';
 $backUrl   = '/bakecost/pages/resep.php';
-$activeNav = 'beranda';
+$activeNav = 'resep';
+$htmlTitle = 'Generate Resep AI — BakeCost';
+require __DIR__ . '/../components/head.php';
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generate Resep AI — BAKECOST</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/bakecost/assets/css/style.css">
-</head>
 <body>
 <div class="app-container">
+
     <?php require __DIR__ . '/../components/header.php'; ?>
 
-    <main class="page-content">
-        <!-- Banner AI -->
-        <div class="card bg-purple-50 border border-purple-200 mb-4">
-            <div class="flex items-center gap-2 mb-1">
-                <span class="text-xl">✨</span>
-                <h2 class="text-sm font-bold text-purple-900">Asisten Resep AI</h2>
-            </div>
-            <p class="text-xs text-purple-700 leading-relaxed">
-                Tuliskan ide kue yang ingin dibuat (misal: "Bolu kukus pandan keju 1 loyang"), AI akan meracik komposisi bahan dan takarannya.
-            </p>
-        </div>
+    <main class="page-content space-y-5">
 
-        <!-- Form Prompt -->
-        <div class="card mb-4">
-            <label class="form-label text-xs">Ide Kue / Baking</label>
-            <div class="flex gap-2">
-                <input type="text" id="aiPrompt" class="input-field text-sm flex-1"
+        <section class="editorial-hero space-y-2">
+            <p class="eyebrow">Asisten Resep AI</p>
+            <h2 class="font-editorial text-2xl font-semibold text-ink">Racik Ide Kue Otomatis</h2>
+            <p class="text-sm text-secondary">
+                Tuliskan ide kue yang ingin dibuat (misal: "Bolu kukus pandan keju 1 loyang"), AI akan menyusun komposisi bahan dan takarannya.
+            </p>
+        </section>
+
+        <section class="card space-y-3">
+            <label class="form-label" for="aiPrompt">Ide Kue / Produk Baking</label>
+            <div class="flex flex-col sm:flex-row gap-2.5">
+                <input type="text" id="aiPrompt" class="input-field flex-1"
                        placeholder="cth: Brownies Fudgy Cokelat Lumer"
                        value="Brownies Panggang Cokelat">
-                <button onclick="generateRecipe()" id="btnGenerate" class="btn-primary text-xs w-auto px-4 py-2.5">
+                <button type="button" onclick="generateRecipe()" id="btnGenerate" class="btn-primary sm:w-auto px-6">
                     Generate
                 </button>
             </div>
-        </div>
+        </section>
 
-        <!-- Loading State -->
-        <div id="aiLoading" class="hidden text-center py-8">
-            <div class="inline-block animate-spin text-3xl mb-2">🔄</div>
-            <p class="text-xs text-[#7C4A2D] font-semibold">Sedang meracik takaran bahan kue...</p>
-        </div>
+        <section id="aiLoading" class="hidden card text-center py-10 space-y-3" role="status" aria-live="polite">
+            <div class="skeleton h-5 w-48 mx-auto"></div>
+            <p class="text-xs text-muted">Sedang menyusun takaran bahan kue...</p>
+        </section>
 
-        <!-- Hasil Generate Resep -->
-        <div id="aiResultCard" class="hidden">
-            <div class="card mb-4 border border-[#C17A3E]">
-                <div class="flex items-start justify-between mb-2">
-                    <div>
-                        <span class="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold">Resep AI</span>
-                        <h3 id="resNama" class="text-base font-bold text-[#3D1F0D] mt-1"></h3>
-                        <p id="resYield" class="text-xs text-[#9E7A5A]"></p>
-                    </div>
+        <section id="aiResultCard" class="hidden card space-y-4">
+            <div class="flex items-start justify-between gap-2">
+                <div>
+                    <span class="badge-ai mb-1.5">Hasil AI</span>
+                    <h3 id="resNama" class="font-editorial text-2xl font-semibold text-ink"></h3>
+                    <p id="resYield" class="text-xs text-muted mt-0.5 tabular-nums"></p>
                 </div>
-
-                <p id="resDeskripsi" class="text-xs text-[#5A2D0C] bg-[#FDE8D5] p-2.5 rounded-xl my-3 italic"></p>
-
-                <h4 class="text-xs font-bold text-[#7C4A2D] uppercase tracking-wide mb-2">Komposisi Bahan:</h4>
-                <div id="resBahanList" class="divide-y divide-[#F0E8DF] text-xs mb-3"></div>
-
-                <div id="aiInfoNote" class="text-[11px] text-[#9E7A5A] mb-3"></div>
-
-                <button onclick="saveAiRecipe()" id="btnSaveAi" class="btn-primary text-sm py-2.5">
-                    Simpan Resep Ini ke Akun
-                </button>
             </div>
-        </div>
+
+            <p id="resDeskripsi" class="alert-info italic"></p>
+
+            <div class="list-card">
+                <div class="list-card__header">
+                    <span>Komposisi Bahan</span>
+                    <span>Takaran</span>
+                </div>
+                <div id="resBahanList"></div>
+            </div>
+
+            <p id="aiInfoNote" class="text-xs text-muted"></p>
+
+            <button type="button" onclick="saveAiRecipe()" id="btnSaveAi" class="btn-primary">
+                Simpan Resep ke Akun
+            </button>
+        </section>
+
     </main>
 
     <?php require __DIR__ . '/../components/bottom_nav.php'; ?>
@@ -96,9 +88,9 @@ async function generateRecipe() {
         return;
     }
 
-    const btn = document.getElementById('btnGenerate');
+    const btn     = document.getElementById('btnGenerate');
     const loading = document.getElementById('aiLoading');
-    const result = document.getElementById('aiResultCard');
+    const result  = document.getElementById('aiResultCard');
 
     btn.disabled = true;
     loading.classList.remove('hidden');
@@ -107,13 +99,12 @@ async function generateRecipe() {
     try {
         const res = await apiFetch('/bakecost/api/ai_resep.php', {
             method: 'POST',
-            body: { prompt }
+            body: { prompt },
         });
-
         currentAiRecipe = res.resep;
         displayRecipe(res);
     } catch (err) {
-        showToast('⚠ ' + err.message);
+        showToast(err.message);
     } finally {
         btn.disabled = false;
         loading.classList.add('hidden');
@@ -122,24 +113,23 @@ async function generateRecipe() {
 
 function displayRecipe(res) {
     const r = res.resep;
-    document.getElementById('resNama').textContent = r.nama;
-    document.getElementById('resYield').textContent = `Hasil: ${r.jumlah_hasil} ${r.satuan_hasil}`;
+    document.getElementById('resNama').textContent      = r.nama;
+    document.getElementById('resYield').textContent     = `Hasil: ${r.jumlah_hasil} ${r.satuan_hasil}`;
     document.getElementById('resDeskripsi').textContent = r.deskripsi || '';
 
-    const bahanEl = document.getElementById('resBahanList');
-    bahanEl.innerHTML = (r.bahan || []).map(b => `
-        <div class="py-2 flex items-center justify-between">
-            <div>
-                <span class="font-medium text-[#3D1F0D]">${escHtml(b.nama)}</span>
-                ${b.catatan ? `<span class="text-[#9E7A5A] text-[11px] block">(${escHtml(b.catatan)})</span>` : ''}
+    document.getElementById('resBahanList').innerHTML = (r.bahan || []).map(b => `
+        <div class="list-row">
+            <div class="list-row__main">
+                <p class="list-row__title">${escHtml(b.nama)}</p>
+                ${b.catatan ? `<p class="list-row__meta">${escHtml(b.catatan)}</p>` : ''}
             </div>
-            <span class="font-bold text-[#7C4A2D]">${b.jumlah} ${escHtml(b.satuan)}</span>
+            <div class="list-row__aside">
+                <span class="list-row__price">${b.jumlah} ${escHtml(b.satuan)}</span>
+            </div>
         </div>
     `).join('');
 
-    const infoEl = document.getElementById('aiInfoNote');
-    infoEl.textContent = res.info || 'Generated via Google Gemini AI.';
-
+    document.getElementById('aiInfoNote').textContent = res.info || 'Generated via Google Gemini AI.';
     document.getElementById('aiResultCard').classList.remove('hidden');
 }
 
@@ -151,28 +141,26 @@ async function saveAiRecipe() {
     btn.textContent = 'Menyimpan...';
 
     try {
-        // Ambil daftar bahan baku milik user untuk mencocokkan atau membuat baru
         const userBahan = await apiFetch('/bakecost/api/bahan_baku.php');
-        const bahanMap = {};
+        const bahanMap  = {};
         userBahan.forEach(b => bahanMap[b.nama.toLowerCase()] = b.id);
 
         const preparedBahan = [];
 
         for (const b of (currentAiRecipe.bahan || [])) {
-            const key = b.nama.toLowerCase();
+            const key   = b.nama.toLowerCase();
             let bahanId = bahanMap[key];
 
-            // Jika bahan belum ada di DB user, auto-buat dengan estimasi harga wajar
             if (!bahanId) {
                 const autoCreated = await apiFetch('/bakecost/api/bahan_baku.php', {
                     method: 'POST',
                     body: {
-                        nama: b.nama,
-                        satuan: ['g','kg','ml','l','pcs','butir'].includes(b.satuan) ? b.satuan : 'g',
+                        nama:        b.nama,
+                        satuan:      ['g', 'kg', 'ml', 'l', 'pcs', 'butir'].includes(b.satuan) ? b.satuan : 'g',
                         jumlah_beli: b.satuan === 'butir' ? 10 : 1000,
-                        harga_beli: b.satuan === 'butir' ? 20000 : 15000,
-                        kategori: 'Lainnya'
-                    }
+                        harga_beli:  b.satuan === 'butir' ? 20000 : 15000,
+                        kategori:    'Lainnya',
+                    },
                 });
                 bahanId = autoCreated.data.id;
                 bahanMap[key] = bahanId;
@@ -180,39 +168,33 @@ async function saveAiRecipe() {
 
             preparedBahan.push({
                 bahan_id: bahanId,
-                jumlah: b.jumlah,
-                catatan: b.catatan || 'Takaran AI'
+                jumlah:   b.jumlah,
+                catatan:  b.catatan || 'Takaran AI',
             });
         }
 
         const savedResep = await apiFetch('/bakecost/api/resep.php', {
             method: 'POST',
             body: {
-                nama: currentAiRecipe.nama,
-                jumlah_hasil: currentAiRecipe.jumlah_hasil,
-                satuan_hasil: currentAiRecipe.satuan_hasil,
-                deskripsi: currentAiRecipe.deskripsi,
+                nama:          currentAiRecipe.nama,
+                jumlah_hasil:  currentAiRecipe.jumlah_hasil,
+                satuan_hasil:  currentAiRecipe.satuan_hasil,
+                deskripsi:     currentAiRecipe.deskripsi,
                 dibuat_via_ai: true,
-                bahan: preparedBahan
-            }
+                bahan:         preparedBahan,
+            },
         });
 
-        showToast('Resep AI berhasil disimpan ke akun! ✓');
+        showToast('Resep AI berhasil disimpan');
         setTimeout(() => {
             window.location = `/bakecost/pages/resep_detail.php?id=${savedResep.id}`;
-        }, 1200);
-
+        }, 1000);
     } catch (err) {
-        showToast('⚠ Gagal menyimpan: ' + err.message);
+        showToast('Gagal menyimpan: ' + err.message);
         btn.disabled = false;
-        btn.textContent = 'Simpan Resep Ini ke Akun';
+        btn.textContent = 'Simpan Resep ke Akun';
     }
-}
-
-function escHtml(str) {
-    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 </script>
 </body>
 </html>
-

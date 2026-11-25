@@ -1,7 +1,6 @@
 <?php
 /**
- * pages/konversi.php — Step 1: Pilih Resep
- * Sesuai desain "Pilih Resep.png": stepper 1-2-3, search, list resep, tombol Lanjut.
+ * pages/konversi.php — Step 1: Pilih Resep untuk Konversi Bahan.
  */
 
 require_once __DIR__ . '/../components/auth_guard.php';
@@ -10,127 +9,107 @@ require_once __DIR__ . '/../config/database.php';
 $db     = getDB();
 $userId = currentUserId();
 
-// Ambil semua resep milik user
 $stmt = $db->prepare('SELECT id, nama, jumlah_hasil, satuan_hasil FROM resep WHERE pengguna_id = ? ORDER BY nama ASC');
 $stmt->execute([$userId]);
-$resepList = $stmt->fetchAll();
-
-// Jika ada resep_id dari query string (shortcut dari halaman lain)
+$resepList   = $stmt->fetchAll();
 $preselected = (int) ($_GET['resep_id'] ?? 0);
 
-$showBack  = true;
-$pageTitle = 'Konversi Bahan';
-$backUrl   = '/bakecost/pages/beranda.php';
-$activeNav = 'konversi';
-
+$showBack    = true;
+$pageTitle   = 'Konversi Bahan';
+$backUrl     = '/bakecost/pages/beranda.php';
+$activeNav   = 'konversi';
 $steps       = ['Resep', 'Jumlah Produksi', 'Hasil'];
 $currentStep = 1;
+$htmlTitle   = 'Pilih Resep — BakeCost';
+require __DIR__ . '/../components/head.php';
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pilih Resep — BAKECOST</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/bakecost/assets/css/style.css">
-</head>
 <body>
 <div class="app-container">
+
     <?php require __DIR__ . '/../components/header.php'; ?>
 
-    <main class="page-content">
+    <main class="page-content page-content--with-fixed-cta max-w-2xl mx-auto">
         <?php require __DIR__ . '/../components/step_indicator.php'; ?>
 
-        <h2 class="text-lg font-bold text-[#3D1F0D] mb-4">Pilih Resep</h2>
+        <section class="mb-5">
+            <p class="eyebrow">Langkah 01</p>
+            <h2 class="font-editorial text-2xl font-semibold text-ink mt-0.5">Pilih Resep</h2>
+        </section>
 
-        <!-- Search -->
-        <div class="relative mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#B09080] absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <div class="relative mb-5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-muted absolute left-4 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 105 11a6 6 0 0012 0z"/>
             </svg>
-            <input type="text" id="searchInput" class="input-field pl-10" placeholder="Cari resep..." autocomplete="off">
+            <input type="text" id="searchInput" class="input-field pl-11" placeholder="Cari resep..." autocomplete="off">
         </div>
 
         <?php if (empty($resepList)): ?>
-        <!-- Tidak ada resep -->
-        <div class="text-center py-12">
-            <p class="text-4xl mb-3">📋</p>
-            <p class="font-semibold text-[#7C4A2D]">Belum ada resep</p>
-            <p class="text-[#9E7A5A] text-sm mt-1">Tambahkan resep terlebih dahulu sebelum konversi.</p>
-            <a href="/bakecost/pages/resep_tambah.php" class="inline-block mt-4 px-5 py-2 bg-[#7C4A2D] text-white text-sm rounded-xl font-semibold">+ Tambah Resep</a>
-        </div>
+            <section class="card text-center py-12">
+                <p class="font-editorial text-lg font-semibold text-ink">Belum ada resep</p>
+                <p class="text-muted text-sm mt-1">Tambahkan resep terlebih dahulu sebelum melakukan konversi.</p>
+                <a href="/bakecost/pages/resep_tambah.php" class="btn-primary btn-sm mt-5">+ Tambah Resep</a>
+            </section>
         <?php else: ?>
+            <section class="space-y-2.5" id="resepList">
+                <?php foreach ($resepList as $idx => $r):
+                    $isSelected = ($r['id'] === $preselected);
+                ?>
+                    <button type="button"
+                            class="resep-card card w-full text-left flex items-center justify-between gap-3 p-4 transition-all <?= $isSelected ? 'card-selected' : 'hover:border-[var(--border-strong)]' ?>"
+                            data-id="<?= $r['id'] ?>"
+                            data-nama="<?= strtolower(htmlspecialchars($r['nama'])) ?>"
+                            onclick="selectResep(<?= $r['id'] ?>)">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <span class="text-xs font-semibold text-muted tabular-nums flex-shrink-0">
+                                (<?= str_pad((string) ($idx + 1), 2, '0', STR_PAD_LEFT) ?>)
+                            </span>
+                            <div class="min-w-0">
+                                <p class="font-editorial text-base font-semibold text-ink truncate"><?= htmlspecialchars($r['nama']) ?></p>
+                                <p class="text-xs text-muted tabular-nums">Yield: <?= $r['jumlah_hasil'] ?> <?= htmlspecialchars($r['satuan_hasil']) ?></p>
+                            </div>
+                        </div>
+                        <span class="check-icon w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 <?= $isSelected ? 'bg-[var(--brand-espresso)] border-[var(--brand-espresso)]' : 'border-[var(--border-strong)]' ?>">
+                            <?php if ($isSelected): ?>
+                                <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            <?php endif; ?>
+                        </span>
+                    </button>
+                <?php endforeach; ?>
+            </section>
 
-        <!-- List resep — bisa diklik untuk pilih -->
-        <div class="space-y-2 mb-24" id="resepList">
-            <?php foreach ($resepList as $r):
-                $isSelected = ($r['id'] === $preselected);
-            ?>
-            <div class="resep-card card flex items-center gap-3 p-3 cursor-pointer transition-all
-                        <?= $isSelected ? 'card-selected' : 'hover:shadow-md' ?>"
-                 data-id="<?= $r['id'] ?>"
-                 data-nama="<?= strtolower(htmlspecialchars($r['nama'])) ?>"
-                 onclick="selectResep(<?= $r['id'] ?>)">
+            <div id="searchEmpty" class="hidden card text-center py-8 text-muted text-sm mt-3">Resep tidak ditemukan.</div>
 
-                <div class="w-12 h-12 rounded-xl bg-[#EAD9C8] flex items-center justify-center text-xl flex-shrink-0">🧁</div>
-                <div class="flex-1 min-w-0">
-                    <p class="font-semibold text-[#3D1F0D] truncate"><?= htmlspecialchars($r['nama']) ?></p>
-                    <p class="text-[#9E7A5A] text-xs"><?= $r['jumlah_hasil'] ?> <?= htmlspecialchars($r['satuan_hasil']) ?></p>
-                </div>
-                <!-- Indikator pilih -->
-                <div class="check-icon w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0
-                            <?= $isSelected ? 'bg-[#7C4A2D] border-[#7C4A2D]' : 'border-[#DDD0C4]' ?>">
-                    <?php if ($isSelected): ?>
-                    <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    <?php endif; ?>
-                </div>
+            <div class="btn-fixed-bottom">
+                <button type="button" id="btnLanjut" onclick="lanjut()" class="btn-primary">Lanjut</button>
             </div>
-            <?php endforeach; ?>
-        </div>
-
-        <!-- Tidak ada hasil search -->
-        <div id="searchEmpty" class="hidden text-center py-8 text-[#9E7A5A] text-sm">Resep tidak ditemukan.</div>
-
         <?php endif; ?>
     </main>
 
     <?php require __DIR__ . '/../components/bottom_nav.php'; ?>
 </div>
 
-<!-- Tombol Lanjut fixed -->
-<div class="btn-fixed-bottom">
-    <button id="btnLanjut" onclick="lanjut()"
-        class="btn-primary <?= empty($resepList) ? 'opacity-50 cursor-not-allowed' : '' ?>"
-        <?= empty($resepList) ? 'disabled' : '' ?>>
-        Lanjut
-    </button>
-</div>
-
+<div id="toast"></div>
 <script src="/bakecost/assets/js/app.js"></script>
 <script>
 let selectedId = <?= $preselected ?: 'null' ?>;
 
 function selectResep(id) {
-    // Reset semua card
     document.querySelectorAll('.resep-card').forEach(card => {
         card.classList.remove('card-selected');
-        card.classList.add('hover:shadow-md');
         const icon = card.querySelector('.check-icon');
-        icon.className = icon.className.replace('bg-[#7C4A2D] border-[#7C4A2D]', 'border-[#DDD0C4]');
+        icon.classList.remove('bg-[var(--brand-espresso)]', 'border-[var(--brand-espresso)]');
+        icon.classList.add('border-[var(--border-strong)]');
         icon.innerHTML = '';
     });
 
-    // Aktifkan yang dipilih
     const chosen = document.querySelector(`.resep-card[data-id="${id}"]`);
     if (chosen) {
         chosen.classList.add('card-selected');
-        chosen.classList.remove('hover:shadow-md');
         const icon = chosen.querySelector('.check-icon');
-        icon.classList.add('bg-[#7C4A2D]', 'border-[#7C4A2D]');
-        icon.classList.remove('border-[#DDD0C4]');
+        icon.classList.add('bg-[var(--brand-espresso)]', 'border-[var(--brand-espresso)]');
+        icon.classList.remove('border-[var(--border-strong)]');
         icon.innerHTML = `<svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
         </svg>`;
@@ -146,9 +125,8 @@ function lanjut() {
     window.location = `/bakecost/pages/konversi_jumlah.php?resep_id=${selectedId}`;
 }
 
-// Search filter
 document.getElementById('searchInput')?.addEventListener('input', debounce(function (e) {
-    const kw = e.target.value.trim().toLowerCase();
+    const kw    = e.target.value.trim().toLowerCase();
     let visible = 0;
     document.querySelectorAll('.resep-card').forEach(card => {
         const show = !kw || card.dataset.nama.includes(kw);
@@ -157,8 +135,7 @@ document.getElementById('searchInput')?.addEventListener('input', debounce(funct
     });
     const empty = document.getElementById('searchEmpty');
     if (empty) empty.classList.toggle('hidden', visible > 0 || !kw);
-}, 250));
+}, 220));
 </script>
 </body>
 </html>
-

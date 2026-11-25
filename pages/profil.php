@@ -1,8 +1,6 @@
 <?php
 /**
- * pages/profil.php
- * Sesuai desain "Profil.png": avatar, info user, 2 stats card,
- * menu navigasi pengaturan, dan tombol Keluar.
+ * pages/profil.php — Profil pengguna, statistik, menu pengaturan, dan tombol keluar.
  */
 
 require_once __DIR__ . '/../components/auth_guard.php';
@@ -11,12 +9,10 @@ require_once __DIR__ . '/../config/database.php';
 $db     = getDB();
 $userId = currentUserId();
 
-// Hitung resep tersimpan
 $stmtR = $db->prepare('SELECT COUNT(*) FROM resep WHERE pengguna_id = ?');
 $stmtR->execute([$userId]);
 $totalResep = (int) $stmtR->fetchColumn();
 
-// Hitung total perhitungan produksi
 $stmtP = $db->prepare('
     SELECT COUNT(*) FROM produksi p
     JOIN resep r ON r.id = p.resep_id
@@ -29,108 +25,79 @@ $showBack  = true;
 $pageTitle = 'Profil';
 $backUrl   = '/bakecost/pages/beranda.php';
 $activeNav = 'beranda';
+$htmlTitle = 'Profil — BakeCost';
+require __DIR__ . '/../components/head.php';
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil — BAKECOST</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/bakecost/assets/css/style.css">
-</head>
 <body>
 <div class="app-container">
+
     <?php require __DIR__ . '/../components/header.php'; ?>
 
-    <main class="page-content">
-        <!-- User Info Header (Sesuai Profil.png) -->
-        <div class="flex items-center gap-3.5 mb-5 mt-1">
-            <div class="w-16 h-16 rounded-full bg-[#EAD9C8] flex items-center justify-center text-[#7C4A2D] flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-            </div>
-            <div>
-                <h2 class="text-lg font-bold text-[#3D1F0D] leading-snug"><?= currentUserName() ?></h2>
-                <p class="text-xs text-[#9E7A5A]">Pengguna BAKECOST</p>
-                <p class="text-xs text-[#B09080]"><?= currentUserEmail() ?></p>
-            </div>
-        </div>
+    <main class="page-content max-w-2xl mx-auto space-y-5">
 
-        <!-- 2 Stat Cards (Sesuai Profil.png) -->
-        <div class="grid grid-cols-2 gap-3 mb-5">
-            <div class="card p-4">
-                <span class="text-2xl font-bold text-[#7C4A2D] block"><?= $totalResep ?></span>
-                <span class="text-xs text-[#9E7A5A] mt-0.5 block">Resep Disimpan</span>
+        <!-- Header Profil -->
+        <section class="editorial-hero flex items-center gap-4">
+            <div class="w-16 h-16 rounded-full bg-[var(--brand-espresso)] text-[var(--ink-inverse)] flex items-center justify-center font-editorial text-2xl font-semibold flex-shrink-0">
+                <?= strtoupper(substr(currentUserName(), 0, 1)) ?>
             </div>
-            <div class="card p-4">
-                <span class="text-2xl font-bold text-[#7C4A2D] block"><?= $totalPerhitungan ?></span>
-                <span class="text-xs text-[#9E7A5A] mt-0.5 block">Perhitungan</span>
+            <div class="min-w-0">
+                <p class="eyebrow">Pengguna BakeCost</p>
+                <h2 class="font-editorial text-2xl font-semibold text-ink truncate"><?= currentUserName() ?></h2>
+                <p class="text-xs text-muted truncate"><?= currentUserEmail() ?></p>
             </div>
-        </div>
+        </section>
 
-        <!-- Menu List Card (Sesuai Profil.png) -->
-        <div class="card p-0 divide-y divide-[#F0E8DF] mb-5 overflow-hidden">
-            <a href="/bakecost/pages/pengaturan_akun.php" class="flex items-center justify-between p-3.5 hover:bg-[#FDE8D5] transition-colors">
-                <div class="flex items-center gap-3">
-                    <span class="text-base">⚙</span>
-                    <span class="text-sm font-medium text-[#3D1F0D]">Pengaturan Akun</span>
-                </div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#C4A882]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                </svg>
+        <!-- 2 Stat Cards -->
+        <section class="grid grid-cols-2 gap-3.5">
+            <div class="card">
+                <p class="eyebrow">Resep Disimpan</p>
+                <p class="font-editorial text-3xl font-semibold text-ink tabular-nums mt-1"><?= $totalResep ?></p>
+            </div>
+            <div class="card">
+                <p class="eyebrow">Perhitungan</p>
+                <p class="font-editorial text-3xl font-semibold text-accent tabular-nums mt-1"><?= $totalPerhitungan ?></p>
+            </div>
+        </section>
+
+        <!-- Menu Pengaturan -->
+        <section class="card p-0 overflow-hidden divide-y divide-[var(--border-hairline)]">
+            <a href="/bakecost/pages/pengaturan_akun.php" class="flex items-center justify-between px-5 py-4 hover:bg-[var(--bg-accent-soft)] transition-colors">
+                <span class="text-sm font-medium text-ink">Pengaturan Akun</span>
+                <span class="text-muted">→</span>
             </a>
 
-            <a href="/bakecost/pages/pengaturan_akun.php#password" class="flex items-center justify-between p-3.5 hover:bg-[#FDE8D5] transition-colors">
-                <div class="flex items-center gap-3">
-                    <span class="text-base">🔒</span>
-                    <span class="text-sm font-medium text-[#3D1F0D]">Ubah Password</span>
-                </div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#C4A882]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                </svg>
+            <a href="/bakecost/pages/pengaturan_akun.php#password" class="flex items-center justify-between px-5 py-4 hover:bg-[var(--bg-accent-soft)] transition-colors">
+                <span class="text-sm font-medium text-ink">Ubah Password</span>
+                <span class="text-muted">→</span>
             </a>
 
-            <div class="flex items-center justify-between p-3.5 opacity-60">
-                <div class="flex items-center gap-3">
-                    <span class="text-base">🔔</span>
-                    <span class="text-sm font-medium text-[#3D1F0D]">Notifikasi</span>
-                </div>
-                <span class="text-[10px] bg-[#EAD9C8] text-[#7C4A2D] px-2 py-0.5 rounded-full font-semibold">Aktif</span>
+            <div class="flex items-center justify-between px-5 py-4">
+                <span class="text-sm font-medium text-secondary">Notifikasi</span>
+                <span class="badge-biaya">Aktif</span>
             </div>
 
-            <div class="flex items-center justify-between p-3.5 cursor-pointer hover:bg-[#FDE8D5]" onclick="alert('BAKECOST v1.0.0\nAplikasi Konverter Takaran Baking & Kalkulator HPP Kuliah Informatika.')">
-                <div class="flex items-center gap-3">
-                    <span class="text-base">❓</span>
-                    <span class="text-sm font-medium text-[#3D1F0D]">Bantuan</span>
-                </div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#C4A882]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                </svg>
-            </div>
+            <button type="button"
+                    onclick="alert('BakeCost v1.0.0\nAplikasi Konverter Takaran Baking & Kalkulator HPP.')"
+                    class="w-full text-left flex items-center justify-between px-5 py-4 hover:bg-[var(--bg-accent-soft)] transition-colors">
+                <span class="text-sm font-medium text-ink">Bantuan</span>
+                <span class="text-muted">→</span>
+            </button>
 
-            <div class="flex items-center justify-between p-3.5">
-                <div class="flex items-center gap-3">
-                    <span class="text-base">ℹ</span>
-                    <span class="text-sm font-medium text-[#3D1F0D]">Tentang Aplikasi</span>
-                </div>
-                <span class="text-xs text-[#9E7A5A]">v1.0.0</span>
+            <div class="flex items-center justify-between px-5 py-4">
+                <span class="text-sm font-medium text-secondary">Tentang Aplikasi</span>
+                <span class="text-xs text-muted tabular-nums">v1.0.0</span>
             </div>
-        </div>
+        </section>
 
-        <!-- Tombol Keluar (Sesuai Profil.png) -->
-        <a href="/bakecost/auth/logout.php" onclick="return confirm('Yakin ingin keluar dari akun?')"
-           class="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-red-300 text-red-600 font-semibold text-sm hover:bg-red-50 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            Keluar
+        <a href="/bakecost/auth/logout.php"
+           onclick="return confirm('Yakin ingin keluar dari akun?')"
+           class="btn-danger-outline">
+            Keluar dari Akun
         </a>
+
     </main>
 
     <?php require __DIR__ . '/../components/bottom_nav.php'; ?>
 </div>
 </body>
 </html>
-

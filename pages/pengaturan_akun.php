@@ -1,7 +1,6 @@
 <?php
 /**
- * pages/pengaturan_akun.php
- * Ubah profil (nama) dan ubah password akun.
+ * pages/pengaturan_akun.php — Ubah nama profil dan ganti password akun.
  */
 
 require_once __DIR__ . '/../components/auth_guard.php';
@@ -58,72 +57,63 @@ $showBack  = true;
 $pageTitle = 'Pengaturan Akun';
 $backUrl   = '/bakecost/pages/profil.php';
 $activeNav = 'beranda';
+$htmlTitle = 'Pengaturan Akun — BakeCost';
+require __DIR__ . '/../components/head.php';
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pengaturan Akun — BAKECOST</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/bakecost/assets/css/style.css">
-</head>
 <body>
 <div class="app-container">
+
     <?php require __DIR__ . '/../components/header.php'; ?>
 
-    <main class="page-content">
+    <main class="page-content max-w-2xl mx-auto space-y-5">
+
         <?php if ($msg): ?>
-            <div class="alert-success mb-4 text-xs font-semibold">✓ <?= htmlspecialchars($msg) ?></div>
+            <div class="alert-success font-medium" role="status"><?= htmlspecialchars($msg) ?></div>
         <?php endif; ?>
         <?php if ($err): ?>
-            <div class="alert-error mb-4 text-xs font-semibold">⚠ <?= htmlspecialchars($err) ?></div>
+            <div class="alert-error font-medium" role="alert"><?= htmlspecialchars($err) ?></div>
         <?php endif; ?>
 
-        <!-- Form Edit Nama -->
-        <div class="card mb-4">
-            <h2 class="text-sm font-bold text-[#7C4A2D] uppercase tracking-wide mb-3">Informasi Akun</h2>
-            <form method="POST" class="space-y-3">
+        <section class="card space-y-4">
+            <p class="eyebrow">Informasi Akun</p>
+            <form method="POST" class="space-y-4">
                 <input type="hidden" name="action" value="update_profile">
                 <div>
-                    <label class="form-label text-xs">Email</label>
-                    <input type="text" class="input-field text-sm bg-gray-100 text-gray-500 cursor-not-allowed"
-                           value="<?= currentUserEmail() ?>" disabled>
-                    <p class="text-[10px] text-[#9E7A5A] mt-1">Email akun tidak dapat diubah.</p>
+                    <label class="form-label" for="akunEmail">Email</label>
+                    <input type="text" id="akunEmail" class="input-field" value="<?= currentUserEmail() ?>" disabled>
+                    <p class="text-[11px] text-muted mt-1">Email akun tidak dapat diubah.</p>
                 </div>
                 <div>
-                    <label class="form-label text-xs">Nama Lengkap</label>
-                    <input type="text" name="nama" class="input-field text-sm"
-                           value="<?= currentUserName() ?>" required>
+                    <label class="form-label" for="akunNama">Nama Lengkap</label>
+                    <input type="text" id="akunNama" name="nama" class="input-field" value="<?= currentUserName() ?>" required>
                 </div>
-                <button type="submit" class="btn-primary py-2.5 text-xs">Simpan Perubahan</button>
+                <button type="submit" class="btn-primary">Simpan Perubahan</button>
             </form>
-        </div>
+        </section>
 
-        <!-- Form Ganti Password -->
-        <div class="card mb-4" id="password">
-            <h2 class="text-sm font-bold text-[#7C4A2D] uppercase tracking-wide mb-3">Ubah Password</h2>
-            <form method="POST" class="space-y-3">
+        <section class="card space-y-4" id="password">
+            <p class="eyebrow">Keamanan</p>
+            <form method="POST" class="space-y-4">
                 <input type="hidden" name="action" value="change_password">
                 <div>
-                    <label class="form-label text-xs">Password Saat Ini</label>
-                    <input type="password" name="pass_lama" class="input-field text-sm" placeholder="••••••••" required>
+                    <label class="form-label" for="passLama">Password Saat Ini</label>
+                    <input type="password" id="passLama" name="pass_lama" class="input-field" placeholder="••••••••" required>
                 </div>
                 <div>
-                    <label class="form-label text-xs">Password Baru</label>
-                    <input type="password" name="pass_baru" class="input-field text-sm" placeholder="Minimal 6 karakter" required>
+                    <label class="form-label" for="passBaru">Password Baru</label>
+                    <input type="password" id="passBaru" name="pass_baru" class="input-field" placeholder="Minimal 6 karakter" required>
                 </div>
                 <div>
-                    <label class="form-label text-xs">Konfirmasi Password Baru</label>
-                    <input type="password" name="pass_konf" class="input-field text-sm" placeholder="Ulangi password baru" required>
+                    <label class="form-label" for="passKonf">Konfirmasi Password Baru</label>
+                    <input type="password" id="passKonf" name="pass_konf" class="input-field" placeholder="Ulangi password baru" required>
                 </div>
-                <button type="submit" class="btn-secondary py-2.5 text-xs">Ubah Password</button>
+                <button type="submit" class="btn-secondary">Ubah Password</button>
             </form>
-        </div>
+        </section>
+
     </main>
 
     <?php require __DIR__ . '/../components/bottom_nav.php'; ?>
 </div>
 </body>
 </html>
-
