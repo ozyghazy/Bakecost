@@ -1,0 +1,260 @@
+/**
+ * style.css
+ * Custom CSS untuk BAKECOST.
+ * Digunakan bersama Tailwind CSS (via CDN).
+ */
+
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #FDF5EE;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #3D1F0D;
+    min-height: 100dvh;
+}
+
+/* ── Kontainer utama ── */
+.app-container {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100dvh;
+    background-color: #FDF5EE;
+    position: relative;
+}
+
+/* ── Konten halaman (di bawah header, di atas bottom nav) ── */
+.page-content {
+    padding: 16px 16px 90px;  /* 90px = tinggi bottom nav + margin */
+}
+
+/* ── Tombol primer ── */
+.btn-primary {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background-color: #7C4A2D;
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    text-decoration: none;
+}
+.btn-primary:hover  { opacity: 0.9; }
+.btn-primary:active { transform: scale(0.98); }
+
+/* ── Tombol sekunder (outline) ── */
+.btn-secondary {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background-color: transparent;
+    color: #7C4A2D;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    border: 1.5px solid #7C4A2D;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+    text-decoration: none;
+}
+.btn-secondary:hover { background-color: #FDE8D5; }
+
+/* ── Tombol fixed di bawah (seperti di desain) ── */
+.btn-fixed-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    padding: 14px 16px;
+    background-color: #FDF5EE;
+    border-top: 1px solid #EAD9C8;
+    z-index: 30;
+}
+
+/* ── Card ── */
+.card {
+    background-color: #FFFFFF;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(61, 31, 13, 0.06);
+}
+.card-selected {
+    background-color: #FDE8D5;
+    border: 1.5px solid #C17A3E;
+}
+
+/* ── Input teks ── */
+.input-field {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid #DDD0C4;
+    border-radius: 12px;
+    font-size: 15px;
+    color: #3D1F0D;
+    background-color: #FFFFFF;
+    outline: none;
+    transition: border-color 0.15s;
+}
+.input-field:focus { border-color: #7C4A2D; }
+.input-field::placeholder { color: #B09080; }
+
+/* ── Label form ── */
+.form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #7C4A2D;
+    margin-bottom: 6px;
+}
+
+/* ── Badge / chip (filter riwayat, kategori) ── */
+.chip {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+    border: 1.5px solid #DDD0C4;
+    background-color: #FFFFFF;
+    color: #7C4A2D;
+}
+.chip-active {
+    background-color: #7C4A2D;
+    color: #FFFFFF;
+    border-color: #7C4A2D;
+}
+
+/* ── Badge label (Konversi / Biaya di riwayat) ── */
+.badge-konversi {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    background-color: #EAF0FF;
+    color: #2255CC;
+}
+.badge-biaya {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    background-color: #FDE8D5;
+    color: #C17A3E;
+}
+
+/* ── Alert / notifikasi ── */
+.alert-info {
+    padding: 12px 14px;
+    background-color: #FDE8D5;
+    border-radius: 12px;
+    font-size: 13px;
+    color: #5A2D0C;
+}
+.alert-error {
+    padding: 12px 14px;
+    background-color: #FFEDED;
+    border-radius: 12px;
+    font-size: 13px;
+    color: #A11;
+}
+.alert-success {
+    padding: 12px 14px;
+    background-color: #EDFFF4;
+    border-radius: 12px;
+    font-size: 13px;
+    color: #166534;
+}
+
+/* ── Separator garis tabel ── */
+.table-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid #F0E8DF;
+}
+.table-row:last-child { border-bottom: none; }
+
+/* ── Avatar profil ── */
+.avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: #EAD9C8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ── Skeleton loading ── */
+.skeleton {
+    background: linear-gradient(90deg, #EAD9C8 25%, #FDE8D5 50%, #EAD9C8 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 8px;
+}
+@keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ── Modal / overlay ── */
+.modal-overlay {
+    position: fixed; inset: 0;
+    background-color: rgba(61, 31, 13, 0.4);
+    z-index: 50;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+.modal-sheet {
+    background-color: #FDF5EE;
+    border-radius: 20px 20px 0 0;
+    padding: 24px 16px 40px;
+    width: 100%;
+    max-width: 480px;
+    animation: slideUp 0.25s ease-out;
+}
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+}
+
+/* ── Toast notifikasi ── */
+#toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #3D1F0D;
+    color: #FFF;
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-size: 13px;
+    white-space: nowrap;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+#toast.show { opacity: 1; }
+
+/* ── Scrollbar tipis ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #DDD0C4; border-radius: 4px; }
+
